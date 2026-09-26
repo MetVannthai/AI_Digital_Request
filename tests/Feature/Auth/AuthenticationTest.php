@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Models\Request as StockRequest;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -80,9 +81,79 @@ class AuthenticationTest extends TestCase
 
         $response->assertOk()
             ->assertSee('Dashboard')
+            ->assertSee('Request Stock')
+            ->assertSee('My Requests')
             ->assertDontSee('Users')
             ->assertDontSee('Reports')
             ->assertDontSee('Stock Items');
+    }
+
+    public function test_admin_users_only_see_admin_navigation_items(): void
+    {
+        $user = User::factory()->create(['username' => 'admin-user']);
+        $user->syncRoles('admin');
+
+        $response = $this->actingAs($user)->get('/admin/dashboard');
+
+        $response->assertOk()
+            ->assertSee('Inventory')
+            ->assertSee('Categories')
+            ->assertSee('Add Stock')
+            ->assertDontSee('Users')
+            ->assertDontSee('Roles & Permissions')
+            ->assertDontSee('System Settings');
+    }
+
+    public function test_staff_users_can_view_their_request_history(): void
+    {
+        $user = User::factory()->create([
+            'username' => 'staff-requests',
+            'name' => 'Alicia Staff',
+            'phone' => '555-2001',
+            'department' => 'Finance',
+        ]);
+        $user->syncRoles('staff');
+
+        $item = \App\Models\Item::create([
+            'item_code' => 'STAP-001',
+            'name' => 'Stapler',
+            'category_id' => \App\Models\Category::create(['name' => 'Office Supplies'])->id,
+            'unit' => 'pcs',
+            'current_balance' => 20,
+            'min_stock' => 5,
+        ]);
+
+        StockRequest::create([
+            'employee_name' => $user->name,
+            'employee_phone' => $user->phone,
+            'department' => $user->department,
+            'item_id' => $item->id,
+            'quantity' => 2,
+            'purpose' => 'Office use',
+            'status' => 'PENDING',
+            'tracking_code' => 'STAFFREQ1',
+        ]);
+
+        $response = $this->actingAs($user)->get('/staff/requests');
+
+        $response->assertOk()
+            ->assertSee('Alicia Staff')
+            ->assertSee('Stapler');
+    }
+
+    public function test_super_admin_users_see_full_management_navigation_items(): void
+    {
+        $user = User::factory()->create(['username' => 'super-admin-user']);
+        $user->syncRoles('super_admin');
+
+        $response = $this->actingAs($user)->get('/admin/dashboard');
+
+        $response->assertOk()
+            ->assertSee('User Management')
+            ->assertSee('Departments')
+            ->assertSee('Categories')
+            ->assertSee('Stock Transactions')
+            ->assertSee('Audit Logs');
     }
 
     public function test_users_can_logout(): void

@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\TransactionController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicRequestController;
+use App\Http\Controllers\Staff\RequestController as StaffRequestController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -28,6 +29,7 @@ Route::middleware(['auth', 'force.pin'])->group(function () {
 
     Route::prefix('staff')->name('staff.')->middleware('role:staff')->group(function () {
         Route::get('/dashboard', [\App\Http\Controllers\Staff\DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/requests', [StaffRequestController::class, 'index'])->name('requests.index');
     });
 
     Route::prefix('admin')->name('admin.')->middleware('role:super_admin|admin')->group(function () {
