@@ -14,6 +14,28 @@ class StockRequestFlowTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_request_form_system_login_button_check_matches_active_account_phone(): void
+    {
+        User::factory()->create(['phone' => '555-0100', 'status' => 'active']);
+
+        $this->get(route('request.account-check', ['phone' => '555-0100']))
+            ->assertOk()
+            ->assertExactJson(['has_account' => true]);
+    }
+
+    public function test_request_form_system_login_button_check_hides_for_missing_or_inactive_accounts(): void
+    {
+        User::factory()->create(['phone' => '555-0101', 'status' => 'inactive']);
+
+        $this->get(route('request.account-check', ['phone' => '555-0100']))
+            ->assertOk()
+            ->assertExactJson(['has_account' => false]);
+
+        $this->get(route('request.account-check', ['phone' => '555-0101']))
+            ->assertOk()
+            ->assertExactJson(['has_account' => false]);
+    }
+
     public function test_issuing_an_approved_request_decrements_stock_and_records_transaction(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);

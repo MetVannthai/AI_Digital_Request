@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\ItemController;
 use App\Http\Controllers\Admin\RequestController as AdminRequestController;
+use App\Http\Controllers\Admin\SystemSettingController;
 use App\Http\Controllers\Admin\ToolsController;
 use App\Http\Controllers\Admin\TransactionController;
 use App\Http\Controllers\Admin\UserController;
@@ -18,6 +19,7 @@ Route::get('/', function () {
 });
 
 Route::get('/request/create', [PublicRequestController::class, 'create'])->name('request.create');
+Route::get('/request/account-check', [PublicRequestController::class, 'checkAccount'])->middleware('throttle:5,1')->name('request.account-check');
 Route::post('/request', [PublicRequestController::class, 'store'])->name('request.store');
 Route::get('/request/status', [PublicRequestController::class, 'status'])->name('request.status');
 Route::post('/request/status', [PublicRequestController::class, 'showStatus'])->name('request.status.check');
@@ -32,13 +34,15 @@ Route::middleware(['auth', 'force.pin'])->group(function () {
         Route::get('/requests', [StaffRequestController::class, 'index'])->name('requests.index');
     });
 
-    Route::prefix('admin')->name('admin.')->middleware('role:super_admin|admin')->group(function () {
-        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::prefix('admin')->name('admin.')->middleware('role:super_admin|admin|staff')->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('role:super_admin|admin')->name('dashboard');
         Route::resource('categories', CategoryController::class)->except('show')->middleware('permission:manage-items');
         Route::resource('items', ItemController::class)->except('show')->middleware('permission:manage-items');
+        Route::get('/settings', [SystemSettingController::class, 'edit'])->middleware('permission:manage-items')->name('settings.edit');
+        Route::put('/settings', [SystemSettingController::class, 'update'])->middleware('permission:manage-items')->name('settings.update');
         Route::post('/items/{item}/add-stock', [ItemController::class, 'addStock'])->middleware('permission:manage-stock')->name('items.add-stock');
         Route::post('/items/import', [ItemController::class, 'import'])->middleware('permission:manage-items')->name('items.import');
-        Route::get('/requests/my', fn () => redirect()->route('admin.requests.index'))->name('requests.mine');
+        Route::get('/requests/my', fn () => redirect()->route('admin.requests.index'))->middleware('role:super_admin|admin')->name('requests.mine');
         Route::get('/requests', [AdminRequestController::class, 'index'])->middleware('permission:approve-requests')->name('requests.index');
         Route::get('/requests/{request}', [AdminRequestController::class, 'show'])->middleware('permission:approve-requests')->name('requests.show');
         Route::post('/requests/{request}/approve', [AdminRequestController::class, 'approve'])->middleware('permission:approve-requests')->name('requests.approve');

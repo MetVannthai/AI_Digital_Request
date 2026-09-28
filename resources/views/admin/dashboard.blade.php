@@ -1,15 +1,15 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex flex-wrap items-end justify-between gap-4">
-            <div><p class="text-sm font-medium text-violet-600">Overview</p><h2 class="mt-1 text-2xl font-bold tracking-tight text-slate-900">Good morning, {{ Str::before(Auth::user()->name, ' ') }}</h2><p class="mt-1 text-sm text-slate-500">Here is what is happening across your office stock today.</p></div>
-            <p class="text-sm text-slate-500">{{ now()->format('l, d F Y') }}</p>
+            <div><p class="text-sm font-medium text-violet-600">Overview</p><h2 class="mt-1 text-2xl font-bold tracking-tight text-slate-900">{{ $greeting }}, {{ Str::before(Auth::user()->name, ' ') }}</h2><p class="mt-1 text-sm text-slate-500">Here is what is happening across your office stock today.</p></div>
+            {{-- <p class="text-sm text-slate-500">{{ now()->format('l, d F Y') }}</p> --}}
         </div>
     </x-slot>
 
     <div class="space-y-6 px-4 py-8 sm:px-6 lg:px-8">
         @include('partials.flash')
         <section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <a href="{{ route('admin.requests.index', ['status' => 'PENDING']) }}" class="group rounded-2xl bg-[#39206f] p-5 text-white shadow-lg shadow-violet-900/10 transition hover:-translate-y-0.5">
+            <a href="{{ route('admin.requests.index', ['status' => 'PENDING']) }}" class="group rounded-2xl bg-violet-700 p-5 text-white shadow-lg shadow-violet-900/10 transition hover:-translate-y-0.5">
                 <div class="flex items-start justify-between"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-white/15">↗</span><span class="text-xs font-semibold text-violet-200">Needs review</span></div><p class="mt-6 text-sm text-violet-200">Pending requests</p><p class="mt-1 text-3xl font-bold">{{ $pendingCount }}</p><p class="mt-4 text-xs text-violet-200 group-hover:text-white">Open request queue &rarr;</p>
             </a>
             <a href="{{ route('admin.items.index') }}" class="group rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:ring-violet-300"><div class="flex items-start justify-between"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">□</span><span class="text-xs font-semibold text-emerald-600">In catalogue</span></div><p class="mt-6 text-sm text-slate-500">Stock items</p><p class="mt-1 text-3xl font-bold text-slate-900">{{ $itemCount }}</p><p class="mt-4 text-xs text-slate-500 group-hover:text-violet-700">Manage inventory &rarr;</p></a>

@@ -10,6 +10,7 @@ use App\Http\Requests\UpdateItemRequest;
 use App\Imports\ItemsImport;
 use App\Models\Category;
 use App\Models\Item;
+use App\Models\SystemSetting;
 use App\Services\StockService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -26,13 +27,20 @@ class ItemController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(): View { return view('admin.items.create', ['categories' => Category::orderBy('name')->get()]); }
+    public function create(): View { return view('admin.items.create', ['categories' => Category::orderBy('name')->get(), 'defaultMinStock' => SystemSetting::current()->default_min_stock]); }
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(StoreItemRequest $request): RedirectResponse
-    { Item::create($request->validated()); return to_route('admin.items.index')->with('success', 'Item created.'); }
+    {
+        $itemData = $request->validated();
+        $itemData['min_stock'] ??= SystemSetting::current()->default_min_stock;
+
+        Item::create($itemData);
+
+        return to_route('admin.items.index')->with('success', 'Item created.');
+    }
 
     /**
      * Display the specified resource.
@@ -42,7 +50,7 @@ class ItemController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Item $item): View { return view('admin.items.edit', ['item' => $item, 'categories' => Category::orderBy('name')->get()]); }
+    public function edit(Item $item): View { return view('admin.items.edit', ['item' => $item, 'categories' => Category::orderBy('name')->get(), 'defaultMinStock' => SystemSetting::current()->default_min_stock]); }
 
     /**
      * Update the specified resource in storage.

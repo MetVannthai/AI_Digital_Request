@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Staff;
 use App\Http\Controllers\Controller;
 use App\Models\Item;
 use App\Models\Request as StockRequest;
+use App\Support\TimeBasedGreeting;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
@@ -12,6 +13,7 @@ class DashboardController extends Controller
     public function index(): View
     {
         return view('staff.dashboard', [
+            'greeting' => TimeBasedGreeting::current(),
             'pendingCount' => StockRequest::where('status', 'PENDING')->count(),
             'itemCount' => Item::count(),
             'recentRequests' => StockRequest::with('item')->latest()->limit(5)->get(),

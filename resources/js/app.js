@@ -4,7 +4,46 @@ import Alpine from 'alpinejs';
 
 window.Alpine = Alpine;
 
+const darkModeEnabled = localStorage.getItem('office-stock-theme') === 'dark';
+document.documentElement.classList.toggle('dark-mode', darkModeEnabled);
+
+Alpine.store('theme', {
+    dark: darkModeEnabled,
+    toggle() {
+        this.dark = !this.dark;
+        document.documentElement.classList.toggle('dark-mode', this.dark);
+        localStorage.setItem('office-stock-theme', this.dark ? 'dark' : 'light');
+    },
+});
+
 Alpine.start();
+
+const updateCambodiaClock = () => {
+    const now = new Date();
+    const date = new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'Asia/Phnom_Penh',
+        weekday: 'short',
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+    }).format(now);
+    const time = new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'Asia/Phnom_Penh',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+    }).format(now);
+
+    document.querySelectorAll('[data-cambodia-date]').forEach((element) => {
+        element.textContent = date;
+    });
+    document.querySelectorAll('[data-cambodia-time]').forEach((element) => {
+        element.textContent = time;
+    });
+};
+
+updateCambodiaClock();
+window.setInterval(updateCambodiaClock, 60_000);
 
 const initializePinInputs = () => {
     const groups = document.querySelectorAll('[data-pin-group]');

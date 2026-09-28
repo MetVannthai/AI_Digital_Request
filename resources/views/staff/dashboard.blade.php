@@ -3,7 +3,7 @@
         <div class="flex flex-wrap items-end justify-between gap-4">
             <div>
                 <p class="text-sm font-medium text-violet-600">Staff overview</p>
-                <h2 class="mt-1 text-2xl font-bold tracking-tight text-slate-900">Welcome, {{ Str::before(Auth::user()->name, ' ') }}</h2>
+                <h2 class="mt-1 text-2xl font-bold tracking-tight text-slate-900">{{ $greeting }}, {{ Str::before(Auth::user()->name, ' ') }}</h2>
             </div>
             <p class="text-sm text-slate-500">{{ now()->format('l, d F Y') }}</p>
         </div>
@@ -11,7 +11,7 @@
 
     <div class="space-y-6 px-4 py-8 sm:px-6 lg:px-8">
         <section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            <div class="rounded-2xl bg-[#39206f] p-5 text-white shadow-lg shadow-violet-900/10">
+            <div class="rounded-2xl bg-violet-700 p-5 text-white shadow-lg shadow-violet-900/10">
                 <p class="text-sm text-violet-200">My pending requests</p>
                 <p class="mt-3 text-3xl font-bold">{{ $pendingCount }}</p>
             </div>

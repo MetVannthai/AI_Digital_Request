@@ -34,6 +34,8 @@ class RolePermissionSeeder extends Seeder
         Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web'])->syncPermissions([
             'manage-items', 'manage-stock', 'approve-requests', 'issue-stock', 'view-reports', 'export-data',
         ]);
-        Role::firstOrCreate(['name' => 'staff', 'guard_name' => 'web'])->syncPermissions(['view-own-requests']);
+        Role::firstOrCreate(['name' => 'staff', 'guard_name' => 'web'])->syncPermissions([
+            'view-own-requests', 'manage-items', 'manage-stock', 'export-data',
+        ]);
     }
 }
